@@ -1,0 +1,73 @@
+{
+  "queryIndices": {
+    "useConfig": "useConfig",
+    "useCyobrainInternetConnectionStatus": "useCyobrainInternetConnectionStatus",
+    "useNetworks": "useNetworks"
+  },
+  "activitiesLibrary": {
+    "levelDropdown": {
+      "triggerPlaceholder": "Level",
+      "options": [
+        { "displayName": "Explorer", "value": "beginner" },
+        { "displayName": "Adventurer", "value": "intermediate" },
+        { "displayName": "Pioneer", "value": "advanced" }
+      ]
+    },
+    "activities": [],
+    "loadCodeDialog": {
+      "description": "Loading code will delete all existing code and this action cannot be undone.",
+      "title": "Are you absolutely sure?"
+    },
+    "topicDropdown": {
+      "triggerPlaceholder": "Topic",
+      "options": [
+        { "displayName": "Brain", "value": "brain" },
+        { "displayName": "Crawler", "value": "crawler" },
+        { "displayName": "Wheeler", "value": "wheeler" },
+        { "displayName": "Console", "value": "console" }
+      ]
+    }
+  },
+  "editor": "code",
+  "codeEditor": {
+    "loading": {
+      "onFinishLoadingDelayMs": 1000,
+      "messageIntervalMs": 3000,
+      "progressIncrementValue": 10,
+      "progressIntervalMs": 1000,
+      "onFinishLoadingMessage": "We're ready, have fun!",
+      "messages": [
+        "Do not refresh page",
+        "Hang on tight...",
+        "Almost there...",
+        "Patience is a virtue of all programmers",
+        "Sometimes taking a walk is the best debug strategy",
+        "Don't forget to drink water, programmers are human too",
+        "Have you touched grass today?"
+      ]
+    }
+  },
+  "pythonWebREPL": {
+    "endpoint": "ws://192.168.4.1:8266",
+    "password": "cyobot"
+  },
+  "onboarding": {
+    "hasProvidedWifiCredentials": false,
+    "openPortalInstructionCards": [
+      {
+        "header": "1. Connect your laptop to WiFi",
+        "content": "Use your navigation bar to connect your laptop to the same WiFi network that CYOBot connected to previously."
+      },
+      {
+        "header": "2. Type CYOBot’s IP into a new browser",
+        "content": "Your CYOBot will show a unique IP on its LED screen (e.g, 192.168.100.200). Type the IP shown into a new tab on your browser."
+      },
+      {
+        "header": "3. Finish!",
+        "content": "Now, your CYOBot’s IP address has become your personal portal address. Next time, just type in this IP into your browser to connect to the portal while going online."
+      }
+    ],
+    "hasProvidedCodeEditorPreference": false
+  },
+  "version": "v.1.1"
+}

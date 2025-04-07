@@ -1,0 +1,60 @@
+{
+  "motor": {
+    "leg0": {
+      "upper": {
+        "pin": 4,
+        "orientation": -1,
+        "offset": 0
+      },
+      "lower": {
+        "pin": 5,
+        "orientation": 1,
+        "offset": 0
+      }
+    },
+    "leg1": {
+      "upper": {
+        "pin": 6,
+        "orientation": -1,
+        "offset": 0
+      },
+      "lower": {
+        "pin": 7,
+        "orientation": 1,
+        "offset": 0
+      }
+    },
+    "leg2": {
+      "upper": {
+        "pin": 11,
+        "orientation": 1,
+        "offset": 0
+      },
+      "lower": {
+        "pin": 10,
+        "orientation": 1,
+        "offset": 0
+      }
+    },
+    "leg3": {
+      "upper": {
+        "pin": 0,
+        "orientation": 1,
+        "offset": 0
+      },
+      "lower": {
+        "pin": 1,
+        "orientation": 1,
+        "offset": 0
+      }
+    }
+  },
+  "wifi": {
+    "ssid": "Hoai Nam",
+    "password": "17092003"
+  },
+  "startup": {
+    "sound": "",
+    "text": ""
+  }
+}
