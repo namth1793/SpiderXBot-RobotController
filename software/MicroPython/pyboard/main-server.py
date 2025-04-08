@@ -111,7 +111,7 @@ def check_and_connect_wifi():
 def init_ap():
     global ap
 
-    ssid = 'SpiderXBot'
+    ssid = 'CYObot'
     ap = network.WLAN(network.AP_IF)
     ap.active(True)
 

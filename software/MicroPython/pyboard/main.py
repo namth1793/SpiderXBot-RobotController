@@ -3,7 +3,6 @@ import time
 
 import machine  # type: ignore
 import network  # type: ignore
-import speech_recognition as sr
 import webrepl  # type: ignore
 from lib.display import *
 from lib.kinematics import *
@@ -13,12 +12,11 @@ from lib.ultrasonic import *
 from lib.wireless import *
 
 ###############################################################
-myUltra = HCSR04(23, 22)
+ble = BLEPeripheral()
+myUltra = HCSR04(19, 20)
 robot = Crawler()
 ring = LEDRing()
 matrix = Matrix()
-ble = BLEPeripheral()
-r = sr.Recognizer()
 
 ring.reset()
 matrix.reset()
@@ -404,15 +402,6 @@ def obstacleAvoid():
             robot.command("forward")
         time.sleep(0.1)
 
-def voiceRecord():
-    with sr.Microphone() as source:
-        # read the audio data from the default microphone
-        audio_data = r.record(source, duration = 5)
-        # convert speech to text
-        text = r.recognize_google(audio_data, language="vi-VN")
-        print(text)
-    return text
-
 def ble_control():
     while ble.connected:
         if ble.msg_buffer == "start program":
@@ -432,9 +421,12 @@ def ble_control():
             robot.command("stop")
         elif ble.msg_buffer == "avoid":
             obstacleAvoid()
+            ble.msg_buffer = ""
         elif ble.msg_buffer == "voice":
             # voiceCommand()
             print("Voice command")
+            ble.msg_buffer = ""
+        time.sleep(0.1)
     
 def spider_BLE_config():
     global ble

@@ -50,8 +50,8 @@
     }
   },
   "wifi": {
-    "ssid": "Hoai Nam",
-    "password": "17092003"
+    "ssid": "",
+    "password": ""
   },
   "startup": {
     "sound": "",
