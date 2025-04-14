@@ -2,7 +2,7 @@ import json
 import os
 import time
 
-from .pca9685 import PCA9685
+from pca9685 import PCA9685
 
 
 class Leg:

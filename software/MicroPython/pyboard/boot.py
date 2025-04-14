@@ -6,9 +6,21 @@ import machine
 
 machine.freq(240000000)
 
-# check to see if there is main.py in SD card, if there is, overwrite the current file and restart
-import os
+import os  # check to see if there is main.py in SD card, if there is, overwrite the current file and restart
+import sys
 
+from machine import SDCard
+
+try:
+    sd = SDCard(slot=3, sck=12, mosi=11, miso=13, cs=14)  # match your working pins
+    os.mount(sd, '/sdcard')
+    sys.path.append('/lib')
+    sys.path.append('/sdcard')
+    sys.path.append('/sdcard/lib')
+    print("SD card mounted successfully.")
+except Exception as e:
+    print("Failed to mount SD card:", e)
+    
 try:
     os.stat("/sdcard/main.py")
     print("Found main.py, overwrite the main.py")

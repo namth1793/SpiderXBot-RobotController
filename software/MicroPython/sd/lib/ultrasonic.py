@@ -1,5 +1,8 @@
-import machine, time
+import time
+
+import machine
 from machine import Pin
+
 
 class HCSR04:
     def __init__(self, trigger_pin, echo_pin, echo_timeout_us=500*2*30):
@@ -53,13 +56,12 @@ class HCSR04:
     def distance_cm(self):
         """
         Get the distance in centimeters with floating point operations.
-        It returns a float
+        Returns a float, or -1.0 if out of range.
         """
-        pulse_time = self._send_pulse_and_wait()
-
-        # To calculate the distance we get the pulse_time and divide it by 2 
-        # (the pulse walk the distance twice) and by 29.1 becasue
-        # the sound speed on air (343.2 m/s), that It's equivalent to
-        # 0.034320 cm/us that is 1cm each 29.1us
-        cms = (pulse_time / 2) / 29.1
-        return cms
+        try:
+            pulse_time = self._send_pulse_and_wait()
+            cms = (pulse_time / 2) / 29.1
+            return cms
+        except OSError as e:
+            print("Measurement failed:", e)
+            return -1.0  # or float('nan') if you prefer

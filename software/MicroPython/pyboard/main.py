@@ -5,15 +5,16 @@ import machine  # type: ignore
 import network  # type: ignore
 import webrepl  # type: ignore
 from lib.display import *
-from lib.kinematics import *
-from lib.myBLE import *
+from lib.kinematics import Crawler
+from lib.microphone import *
+from lib.myBLE import BLEPeripheral
 from lib.network.microWebSrv import MicroWebSrv
-from lib.ultrasonic import *
+from lib.ultrasonic import HCSR04
 from lib.wireless import *
 
 ###############################################################
 ble = BLEPeripheral()
-myUltra = HCSR04(19, 20)
+myUltra = HCSR04(trigger_pin=39, echo_pin=40)
 robot = Crawler()
 ring = LEDRing()
 matrix = Matrix()
@@ -35,20 +36,7 @@ def startup():
     from audio import player  # type: ignore
     mPlayer = player(None)
     mPlayer.set_vol(100)
-
-    try:
-        with open("/sdcard/config/robot-config.json") as file:
-            content = json.loads(file.read())
-        startup_sound = content["startup"]["sound"]
-        startup_text = content["startup"]["text"]
-        if startup_sound != "":
-            mPlayer.play(startup_sound)
-        else:
-            mPlayer.play('file://sdcard/lib/data/robot-on.wav')
-        if startup_text != "":    
-            matrix.scroll(startup_text, red=150, green=10, blue=40, speed=0.05)
-    except Exception as e:
-        print("Startup error:", e)
+    mPlayer.play('file://sdcard/lib/data/robot-on.wav')
 
     for i in range(12):
         ring.set_manual(i, (0, 100, 0))
@@ -393,6 +381,7 @@ def obstacleAvoid():
     global robot
     while ble.msg_buffer == "avoid":
         distance = myUltra.distance_cm()
+        print(f"distance avoid = {distance}")
         if distance < 20:
             robot.command("backward")
             time.sleep(0.5)
@@ -401,6 +390,10 @@ def obstacleAvoid():
         else:
             robot.command("forward")
         time.sleep(0.1)
+
+def voiceCommand():
+    recording_audio()
+    play_audio()
 
 def ble_control():
     while ble.connected:
@@ -423,8 +416,7 @@ def ble_control():
             obstacleAvoid()
             ble.msg_buffer = ""
         elif ble.msg_buffer == "voice":
-            # voiceCommand()
-            print("Voice command")
+            voiceCommand()
             ble.msg_buffer = ""
         time.sleep(0.1)
     
