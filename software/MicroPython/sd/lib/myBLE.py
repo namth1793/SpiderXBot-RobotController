@@ -1,7 +1,7 @@
 import time
 
 import ubluetooth  # type: ignore
-from bluetooth import BLE  # type: ignorezz
+from bluetooth import BLE  # type: ignore
 
 
 class BLEPeripheral:

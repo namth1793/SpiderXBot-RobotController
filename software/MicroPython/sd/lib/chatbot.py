@@ -7,13 +7,13 @@ class ChatBot:
         self.api_key = api_key
         self.api_url = "https://api.openai.com/v1/completions"
 
-    def transcribe_audio(self, audio_file="question.wav"):
+    def transcribe_audio(self, audio_file):
         """
         Converts speech from the audio file to text using OpenAI's Whisper API.
         """
         print("Transcribing audio...")
         try:
-            with open(audio_file, "rb") as audio:
+            with open("/sdcard/lib/data" + audio_file, "rb") as audio:
                 headers = {
                     "Authorization": f"Bearer {self.api_key}",
                     "Content-Type": "application/json"

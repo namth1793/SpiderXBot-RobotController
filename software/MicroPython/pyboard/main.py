@@ -1,9 +1,12 @@
 import json
 import time
+import urequests as requests
 
 import machine  # type: ignore
 import network  # type: ignore
 import webrepl  # type: ignore
+from audio import player  # type: ignore
+from lib.chatbot import *
 from lib.display import *
 from lib.kinematics import Crawler
 from lib.microphone import *
@@ -18,6 +21,7 @@ myUltra = HCSR04(trigger_pin=39, echo_pin=40)
 robot = Crawler()
 ring = LEDRing()
 matrix = Matrix()
+# myBot = ChatBot()
 
 ring.reset()
 matrix.reset()
@@ -32,12 +36,16 @@ mPlayer = None
 ###############################################################
 def startup():
     global mPlayer
-
-    from audio import player  # type: ignore
     mPlayer = player(None)
     mPlayer.set_vol(100)
-    mPlayer.play('file://sdcard/lib/data/robot-on.wav')
-
+    try:
+        print("Attempting to play audio file...")
+        mPlayer.play('file://sdcard/lib/data/hello.wav')
+        print("Audio playback started")
+        
+    except Exception as e:
+        print("Startup error:", e)
+    
     for i in range(12):
         ring.set_manual(i, (0, 100, 0))
         time.sleep(0.05)
@@ -57,11 +65,6 @@ def test_connect_wifi():
         with open("/sdcard/config/robot-config.json") as file:
             content = json.loads(file.read())
         if content["wifi"]["ssid"] != "":
-            if mPlayer is None:
-                from audio import player  # type: ignore
-                mPlayer = player(None)
-                mPlayer.set_vol(70)
-            mPlayer.play('file://sdcard/lib/data/wifi-connecting.wav')
             print("Connecting to WiFi:", content["wifi"]["ssid"], content["wifi"]["password"])
             wifi.connect(content["wifi"]["ssid"], content["wifi"]["password"], verbose=True)
     except Exception as e:
@@ -70,15 +73,16 @@ def test_connect_wifi():
 
     if wifi.wlan.isconnected():
         if mPlayer is None:
-            from audio import player  # type: ignore
+            from audio import player
             mPlayer = player(None)
-            mPlayer.set_vol(70)
-        mPlayer.play('file://sdcard/lib/data/wifi-connected.wav')
+            mPlayer.set_vol(100)
+        mPlayer.play('file://sdcard/lib/data/ketnoi-wifi.wav')
         time.sleep(2)
 
 ###############################################################
 def check_and_connect_wifi():
     global wifi
+    global mPlayer
 
     wifi = WiFi()
 
@@ -372,10 +376,7 @@ def wait_for_websocket():
     matrix.reset()
 
 ###############################################################
-def spider_Program():
-    test_connect_wifi()
-    init_ap()
-    
+
 def obstacleAvoid():
     global myUltra
     global robot
@@ -393,15 +394,37 @@ def obstacleAvoid():
 
 def voiceCommand():
     recording_audio()
-    play_audio()
+    time.sleep(2)
+    # myBot.transcribe_audio(audio_file="question.wav")
+    play_audio("bluetooth-connected.wav")
+    print("==========  DONE PLAYBACK ==========")
 
+def disconnect_wifi():
+    global wifi
+    print("Disconnecting WiFi...")
+    
+    if wifi and wifi.wlan:
+        if wifi.wlan.isconnected():
+            print("Currently connected to WiFi, disconnecting...")
+            wifi.wlan.disconnect()
+            print("WiFi disconnected")
+        
+        print("Deactivating WiFi interface...")
+        wifi.wlan.active(False)
+        print("WiFi interface deactivated")
+        
+        # Reset WiFi object
+        wifi = None
+        print("WiFi object reset")
+    else:
+        print("WiFi not initialized")
+        
 def ble_control():
     while ble.connected:
-        if ble.msg_buffer == "start program":
-            spider_Program()
-            ble.msg_buffer = ""
-        elif ble.msg_buffer == "reset program":
+        if ble.msg_buffer == "connect wifi":
             machine.reset()
+        elif ble.msg_buffer == "reset":
+            disconnect_wifi()
         elif ble.msg_buffer == "forward":
             robot.command("forward")
         elif ble.msg_buffer == "backward":
@@ -421,13 +444,35 @@ def ble_control():
         time.sleep(0.1)
     
 def spider_BLE_config():
-    global ble
+    global ble, mPlayer
     print("Start BLE...")
     while ble.connected == False:
         time.sleep(0.1)
     print("BLE connected")
-    
+
 ##################### Main Program ####################
 
-spider_BLE_config()
-ble_control()
+with open("state") as file:
+    state = file.read()
+
+if state == "0":
+    with open("state", "w") as file:
+        file.write("1")
+    startup()
+    machine.reset()
+
+elif state == "1":
+    with open("state", "w") as file:
+        file.write("2")
+    spider_BLE_config()
+    ble_control()
+
+elif state == "2":
+    with open("state", "w") as file:
+        file.write("0")
+    test_connect_wifi()
+    response = requests.get('http://jsonplaceholder.typicode.com/albums/1')
+    print(response.text)
+    while wifi.wlan.isconnected():
+        time.sleep(0.1)
+    machine.reset()
