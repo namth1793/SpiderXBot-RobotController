@@ -2,7 +2,7 @@ import ujson  # type: ignore
 import urequests as requests  # type: ignore
 from lib.microphone import *
 
-openAI_key = "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"
+openAI_key = ""
 
 class ChatBot:
     def __init__(self):
