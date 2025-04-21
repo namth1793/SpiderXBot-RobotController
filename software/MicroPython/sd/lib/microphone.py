@@ -18,7 +18,7 @@ BUFFER_LENGTH_IN_BYTES = 40000
 # ======= AUDIO CONFIGURATION =======
 WAV_FILE = "question.wav"
 RECORD_TIME_IN_SECONDS = 5
-WAV_SAMPLE_SIZE_IN_BITS = 32
+WAV_SAMPLE_SIZE_IN_BITS = 16
 SAMPLE_RATE_IN_HZ = 44100
 
 NUM_CHANNELS = 2
@@ -49,9 +49,7 @@ def create_wav_header(sampleRate, bitsPerSample, num_channels, num_samples):
     return o
 
 def recording_audio():
-    print("I2C devices found:", i2c.scan())
-    es7210_config()  # Initialize the ES7210 ADC
-    # Open WAV file
+    print("I2C devices found:", i2c.scan())    # Open WAV file
     wav = open("/sdcard/lib/data/" + WAV_FILE, "wb")
 
     # Create WAV header and write to SD card
@@ -106,9 +104,8 @@ def recording_audio():
     finally:
         clean_audio(wav, audio_in)
 
-def play_audio(wav2_file):
+def play_audio(wav2_file, sample_rate_file):
     wav2 = open("/sdcard/lib/data/" + wav2_file, "rb")
-    es8311_config()  # Initialize the ES8311 DAC
     _ = wav2.seek(44)
 
     print("Initializing I2S...")
@@ -119,9 +116,9 @@ def play_audio(wav2_file):
             ws=Pin(WS_PIN),
             sd=Pin(SDI_PIN),
             mode=I2S.TX,
-            bits=WAV_SAMPLE_SIZE_IN_BITS,
-            format=I2S.STEREO,
-            rate=SAMPLE_RATE_IN_HZ,
+            bits=16,
+            format=I2S.MONO,
+            rate=sample_rate_file,
             ibuf=BUFFER_LENGTH_IN_BYTES,
         )
         print("I2S initialized successfully.")
@@ -132,7 +129,7 @@ def play_audio(wav2_file):
     print("Starting playback loop...")
     # allocate sample array
     # memoryview used to reduce heap allocation
-    wav_samples2 = bytearray(10000)
+    wav_samples2 = bytearray(40000)
     wav_samples_mv2 = memoryview(wav_samples2)
     # continuously read audio samples from the WAV file
     # and write them to an I2S DAC
@@ -141,20 +138,17 @@ def play_audio(wav2_file):
         while True:
             num_read = wav2.readinto(wav_samples_mv2)
             if num_read == 0:
-                _ = wav2.seek(44)  # Restart playback
-            else:
-                _ = audio_out.write(wav_samples_mv2[:num_read])
+                break
+            audio_out.write(wav_samples_mv2[:num_read])
     except (KeyboardInterrupt, Exception) as e:
         print("caught exception {} {}".format(type(e).__name__, e))
-    finally:
-        clean_audio(wav2, audio_out)
         
 def clean_audio(wav_file, audio):
     print("Cleaning up")
     try:
         if audio:
             audio.deinit()
-        if wav:
+        if wav_file:
             wav_file.close()
         print("Cleanup completed.")
     except Exception as e:
